@@ -19,6 +19,7 @@ class CMDB(common):
     """
     """
     id = models.AutoField(primary_key=True)
+    hostname = models.CharField(max_length=120, blank=True, null=True, verbose_name="Hostname")
     data = models.JSONField(blank=True)
 
     class Meta:
@@ -26,5 +27,5 @@ class CMDB(common):
         verbose_name_plural = "cmdb"
         db_table = "cmdb"
 
-    def __str__(self):
-        return self.data
+    # def __str__(self):
+    #     return self.data

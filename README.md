@@ -1,4 +1,4 @@
-## CMDB
+~~## CMDB
 
 ### Depends
 
@@ -26,6 +26,8 @@ pip install -r requirements.txt
 $ ansible-config init --disabled > ansible.cfg
 还可以拥有一个包含现有插件的更完整的文件
 $ ansible-config init --disabled -t all > ansible.cfg
+ansible-inventory -i inventory/hosts --list
+ansible-config dump --only-changed -t all
 ```
 
 ### run
@@ -47,4 +49,4 @@ celery -A tasks flower --broker=redis://:beRcnLADAJdsycZKrdKseR8d@127.0.0.1:6380
 ### refs
 
 [runner-api](https://ansible.readthedocs.io/projects/runner/en/stable/python_interface/#runner-status-handler)
-[ansible doc](https://docs.ansible.com/ansible/latest/getting_started/index.html)
+[ansible doc](https://docs.ansible.com/ansible/latest/getting_started/index.html)~~
