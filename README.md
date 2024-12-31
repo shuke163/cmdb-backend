@@ -33,9 +33,7 @@ ansible-config dump --only-changed -t all
 ### run
 
 ```shell
-uvicorn main:app --host 0.0.0.0 --port 8003 --reload
-or
-python main.py
+python manage.py runserver
 ```
 
 ### celery
@@ -46,7 +44,10 @@ celery -A tasks beat -l info --pidfile=/tmp/celery-beat.pid
 celery -A tasks flower --broker=redis://:beRcnLADAJdsycZKrdKseR8d@127.0.0.1:6380/0 --pidfile=/tmp/celery-flower.pid
 ```
 
+### Django admin
+[admin](http://127.0.0.1:8000/admin)
+
 ### refs
 
 [runner-api](https://ansible.readthedocs.io/projects/runner/en/stable/python_interface/#runner-status-handler)
-[ansible doc](https://docs.ansible.com/ansible/latest/getting_started/index.html)~~
+[ansible doc](https://docs.ansible.com/ansible/latest/getting_started/index.html)
