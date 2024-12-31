@@ -59,12 +59,15 @@ class ResultsCollectorJSONCallback(CallbackBase):
         host = result._host
         self.host_failed[host.get_name()] = result
 
+    def v2_runner_on_skipped(self):
+        pass
+
 
 def main():
     init_plugin_loader()
     host_list = ['localhost', ]
     # since the API is constructed for CLI it expects certain options to always be set in the context object
-    context.CLIARGS = ImmutableDict(module_path=['/Users/apple/.ansible/plugins/modules', '/usr/share/ansible'], forks=10, become=None,
+    context.CLIARGS = ImmutableDict(module_path=['/Users/apple/.ansible/plugins/modules', '/usr/share/ansible/plugins/modules'], forks=10, become=None,
                                     become_method=None, become_user=None, check=False, diff=False, verbosity=0)
     # required for
     # https://github.com/ansible/ansible/blob/devel/lib/ansible/inventory/manager.py#L204
@@ -102,8 +105,8 @@ def main():
         hosts=host_list,
         gather_facts='yes',
         tasks=[
-            # dict(action=dict(module='shell', args='ls'), register='shell_out'),
-            # dict(action=dict(module='debug', args=dict(msg='{{shell_out.stdout}}'))),
+            dict(action=dict(module='shell', args='ls'), register='shell_out'),
+            dict(action=dict(module='debug', args=dict(msg='{{shell_out.stdout}}'))),
             dict(action=dict(module='command', args=dict(cmd='/usr/bin/uptime'))),
         ]
     )

@@ -1,0 +1,11 @@
+*.log
+*.pyc
+logs
+__pycache__
+.DS_Store
+*.db
+../cmdb/.env
+.python-version
+db.sqlite3
+migrations
+artifacts
