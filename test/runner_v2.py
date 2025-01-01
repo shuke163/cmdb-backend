@@ -22,7 +22,7 @@ class AnsibleRunner():
 
     def __init__(self, host_pattern='', limit=None):
         self.data_dir = Path.cwd()
-        self.inventory_path = '/inventory/hosts'
+        self.inventory_path = '/inventory/hosts.yml'
         self.host_pattern = host_pattern
         self.limit = limit
 

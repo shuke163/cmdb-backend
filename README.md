@@ -1,4 +1,4 @@
-~~## CMDB
+## CMDB
 
 ### Depends
 
@@ -19,19 +19,12 @@ pipreqs ./ --encoding=utf8 --force
 pip install -r requirements.txt
 ```
 
-### ansible-config
-
+### init data
 ```shell
-可以生成一个完全注释掉的示例 ansible.cfg 文件，例如
-$ ansible-config init --disabled > ansible.cfg
-还可以拥有一个包含现有插件的更完整的文件
-$ ansible-config init --disabled -t all > ansible.cfg
-ansible-inventory -i inventory/hosts --list
-ansible-config dump --only-changed -t all
+python manage.py loaddata inventory/hosts.json
 ```
 
 ### run
-
 ```shell
 python manage.py runserver
 ```
@@ -46,6 +39,8 @@ celery -A tasks flower --broker=redis://:beRcnLADAJdsycZKrdKseR8d@127.0.0.1:6380
 
 ### Django admin
 [admin](http://127.0.0.1:8000/admin)
+
+### TODO
 
 ### refs
 

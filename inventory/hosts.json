@@ -1,0 +1,23 @@
+[
+  {
+    "model": "api.inventory",
+    "pk": 1,
+    "fields": {
+      "alias": "localhost",
+      "ansible_host": "127.0.0.1",
+      "create_at": "2024-12-31 11:04:08.029071",
+      "delete_at": "2024-12-31 11:32:38.023671"
+    }
+  },
+  {
+    "model": "api.inventory",
+    "pk": 2,
+    "fields": {
+      "alias": "192.168.18.227",
+      "ansible_host": "192.168.18.227",
+      "ansible_ssh_private_key_file": "~/.ssh/id_rsa.pub",
+      "create_at": "2024-12-31 11:04:08.029071",
+      "delete_at": "2024-12-31 11:32:38.023671"
+    }
+  }
+]

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Hosts
+from .models import Inventory, Hosts
 
 # Register your models here.
 admin.site.site_header = "CMDB"
@@ -17,4 +17,14 @@ class HostsAdmin(admin.ModelAdmin):
     list_per_page = 100
 
 
+class InventoryAdmin(admin.ModelAdmin):
+    list_display = (
+        "id", "alias", "ansible_host", "ansible_password", "ansible_user", "ansible_ssh_private_key_file", "group",
+        "children")
+    list_display_links = ("alias", "ansible_host")
+    search_fields = ('ansible_host', 'alias',)
+    list_per_page = 100
+
+
 admin.site.register(Hosts, HostsAdmin)
+admin.site.register(Inventory, InventoryAdmin)

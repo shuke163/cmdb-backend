@@ -15,6 +15,37 @@ class common(models.Model):
         abstract = True
 
 
+class Inventory(common):
+    """
+    ansible inventory table
+    """
+    id = models.AutoField(primary_key=True)
+    alias = models.CharField(max_length=120, blank=True, null=True, verbose_name="host alias")
+    ansible_host = models.CharField(max_length=120, blank=True, null=True, verbose_name="ansible_host")
+    ansible_password = models.CharField(max_length=120, blank=True, null=True, verbose_name="ansible_password")
+    ansible_user = models.CharField(max_length=120, blank=True, null=True, verbose_name="ansible_user")
+    ansible_ssh_private_key_file = models.CharField(max_length=120, blank=True, null=True,
+                                                    verbose_name="ansible_ssh_private_key_file")
+    group = models.CharField(max_length=120, blank=True, null=False, default="ungrouped", verbose_name="group name")
+    children = models.CharField(max_length=120, blank=True, null=False, verbose_name="children name")
+
+    class Meta:
+        ordering = ["alias"]
+        verbose_name_plural = "ansible inventory"
+        db_table = "ansible_inventory"
+
+
+class Group(common):
+    """
+    ansible group table
+    """
+    group = models.ForeignKey(Inventory, on_delete=models.CASCADE, related_name="a_group",
+                              verbose_name="ansible_group_name")
+
+    class Meta:
+        db_table = "ansible_group"
+
+
 class Hosts(common):
     """
     hosts table

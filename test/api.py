@@ -87,9 +87,9 @@ def main():
     # Instantiate our ResultsCollectorJSONCallback for handling results as they come in. Ansible expects this to be one of its main display outlets
     results_callback = ResultsCollectorJSONCallback()
 
-    # create inventory, use path to host config file as source or hosts in a comma separated string
+    # create inventory, use path to host config file as source or hosts.yml in a comma separated string
     inventory = InventoryManager(loader=loader, sources=sources)
-    # print(inventory.hosts, inventory.list_hosts(), inventory.list_groups(), inventory.groups, inventory.localhost)
+    # print(inventory.hosts.yml, inventory.list_hosts(), inventory.list_groups(), inventory.groups, inventory.localhost)
 
     # variable manager takes care of merging all the different sources to give you a unified view of variables available in each context
     variable_manager = VariableManager(loader=loader, inventory=inventory)

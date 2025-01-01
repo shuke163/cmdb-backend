@@ -20,7 +20,7 @@ import ansible_runner
 # get ansible inventory information
 out, err = ansible_runner.get_inventory(
     action='list',
-    inventories=['/Users/apple/work/cmdb/inventory/hosts', ],
+    inventories=['/Users/apple/work/cmdb/inventory/hosts.yml', ],
     response_format='json',
     process_isolation=False,
     # container_image='network-ee'
@@ -41,10 +41,10 @@ logger.info("inventory: {}".format(out))
 # print(r.get_fact_cache("localhost"))
 
 hosts = "localhost, 192.168.18.227"
-logger.info("hosts: {}".format(hosts))
+logger.info("hosts.yml: {}".format(hosts))
 
-# print(",".join(hosts))
-# r = ansible_runner.run(private_data_dir=Path.cwd(), host_pattern="/Users/apple/work/cmdb/inventory/hosts",
+# print(",".join(hosts.yml))
+# r = ansible_runner.run(private_data_dir=Path.cwd(), host_pattern="/Users/apple/work/cmdb/inventory/hosts.yml",
 r = ansible_runner.run(private_data_dir=Path.cwd(), host_pattern=hosts, limit="localhost, 192.168.18.227",
                        module='setup', quiet=True)
 #
