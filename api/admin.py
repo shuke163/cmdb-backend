@@ -2,8 +2,8 @@ from django.contrib import admin
 from .models import Inventory, Hosts
 
 # Register your models here.
-admin.site.site_header = "CMDB"
-admin.site.index_title = "CMDB后台"
+admin.site.site_header = "CMDB 管理后台"
+admin.site.index_title = "CMDB"
 
 
 class HostsAdmin(admin.ModelAdmin):
