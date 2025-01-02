@@ -46,3 +46,11 @@ celery -A tasks flower --broker=redis://:beRcnLADAJdsycZKrdKseR8d@127.0.0.1:6380
 
 [runner-api](https://ansible.readthedocs.io/projects/runner/en/stable/python_interface/#runner-status-handler)
 [ansible doc](https://docs.ansible.com/ansible/latest/getting_started/index.html)
+
+### TODO tree
+1. TODO
+2. BUG
+3. mark
+4. tag
+5. done
+6. test

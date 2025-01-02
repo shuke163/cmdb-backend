@@ -14,82 +14,63 @@ import sqlite3
 from pathlib import Path
 from loguru import logger
 
+
 # docs: https://docs.ansible.com/ansible/latest/inventory_guide/intro_inventory.html
-"""
-example:
-# ansible-inventory -i inventory/hosts.yml --list
-{
-    "_meta": {
-        "hostvars": {
-            "192.168.18.227": {
-                "ansible_ssh_private_key_file": "~/.ssh/id_rsa.pub"
-            },
-            "localhost": {
-                "ansible_host": "127.0.0.1",
-                "ansible_password": "aslongas",
-                "ansible_user": "root"
-            }
-        }
-    },
-    "all": {
-        "children": [
-            "ungrouped",
-            "dev",
-            "prod",
-            "test"
-        ]
-    },
-    "dev": {
-        "hosts": [
-            "localhost",
-            "192.168.18.227"
-        ]
-    },
-    "prod": {
-        "hosts": [
-            "foo.example.com"
-        ]
-    },
-    "test": {
-        "hosts": [
-            "bar.example.com"
-        ]
-    }
-}
-"""
 
-base_path = Path(__file__).parent.parent
-logger.info(f"base_path: {base_path}")
+class DynamicInventory:
+    """
+    dynamic inventory
+    """
 
-struct = {
-    "_meta": {
-        "hostvars": {
-        }
-    },
-    "all": {
-        "children": [
-            "ungrouped",
-        ]
-    },
-    "ungrouped": {
-        "hosts": []
-    }
-}
+    def __init__(self):
+        self.base_path = Path(__file__).parent.parent
+        self.db_path = Path(self.base_path, "db.sqlite3")
+        self.data = self.load_inventory()
+        print(self.data)
 
-conn = sqlite3.connect(Path(base_path, "db.sqlite3"))
-conn.row_factory = sqlite3.Row
-c = conn.cursor()
-# ret = c.execute(
-#     "SELECT id, alias, ansible_host, ansible_password, ansible_user, ansible_ssh_private_key_file  from ansible_inventory").fetchall()
+    def _empty_inventory(self):
+        return {'_meta': {'hostvars': {}}}
 
-ret = c.execute("SELECT * from ansible_inventory").fetchall()
+    # dynamic inventory for db.sqlite3
+    def load_inventory(self):
+        """
+        Example of a method for creating an inventory return Json.
+        :return: Json with the inventory.
+        :rtype: json.
+        """
+        inventory_struct = dict()
+        conn = sqlite3.connect(self.db_path)
+        conn.row_factory = sqlite3.Row
+        c = conn.cursor()
+        ret = c.execute("SELECT * from ansible_inventory").fetchall()
 
-for row in ret:
-    # print(dict(row))
-    struct["_meta"]["hostvars"][str(row["alias"])] = dict(row)
-    struct["ungrouped"]["hosts"].append(str(row["alias"]))
+        for row in ret:
+            # print(dict(row))
+            inventory_struct.setdefault("_meta", {}).setdefault("hostvars", {}).setdefault(str(row["alias"]), dict(row))
+            inventory_struct.setdefault(row["group"], {}).setdefault("hosts", []).append(str(row["alias"]))
+            inventory_struct.setdefault("all", {}).setdefault("children", []).append(row["group"])
 
-c.close()
-conn.close()
+            # if row["group"] == "dev" or row["group"] == "test" or row["group"] == "prod":
+            #     inventory_struct[row["group"]]["hosts"].append(str(row["alias"]))
 
-logger.info(json.dumps(struct, indent=4, separators=(',', ':')))
+        group = c.execute('SELECT "group" from ansible_inventory').fetchall()
+        for row in group:
+            inventory_struct["all"]["children"].append(row["group"])
+
+        # tag/去重
+        inventory_struct["all"]["children"] = list(set(inventory_struct["all"]["children"]))
+        inventory_struct["ungrouped"]["hosts"] = list(set(inventory_struct["ungrouped"]["hosts"]))
+
+        c.close()
+        conn.close()
+
+        data = json.dumps(inventory_struct, indent=4, separators=(',', ':'))
+        # logger.debug(f"dynamic inventory: {data}")
+        return data
+
+
+if __name__ == '__main__':
+    try:
+        DynamicInventory()
+    except Exception as e:
+        print(json.dumps({"_meta": {"hostvars": {}}}))
