@@ -1,7 +1,22 @@
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+
+# Django stuff:
+*.log
+local_settings.py
+
 *.log
 *.pyc
+.vscode
 logs
-__pycache__
 .DS_Store
 *.db
 ../cmdb/.env

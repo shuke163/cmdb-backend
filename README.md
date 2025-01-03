@@ -29,18 +29,17 @@ python manage.py loaddata inventory/hosts.json
 python manage.py runserver
 ```
 
-### celery
-
+<details>
+<summary>celery</summary>
 ```shell
 celery -A tasks worker -l info -P eventlet
 celery -A tasks beat -l info --pidfile=/tmp/celery-beat.pid
 celery -A tasks flower --broker=redis://:beRcnLADAJdsycZKrdKseR8d@127.0.0.1:6380/0 --pidfile=/tmp/celery-flower.pid
 ```
+<br>
 
 ### Django admin
 [admin](http://127.0.0.1:8000/admin)
-
-### TODO
 
 ### refs
 

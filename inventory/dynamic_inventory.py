@@ -1,13 +1,16 @@
 #!/usr/bin/env python
 # -*- encoding: utf-8 -*-
-"""
+'''
 @File    :   dynamic_inventory.py
+@Time    :   2025/01/02 17:31:29
+@Author  :   fengfeng Zhao 
+@Version :   1.0
 @Contact :   shu_ke163@163.com
-@Author  :   fengfeng Zhao
-@Modify Time      @Version    @Desciption
-------------      --------    -----------
-2024/12/31 09:16    1.0         None
-"""
+'''
+
+# here put the import lib
+
+
 import json
 
 import sqlite3

@@ -1,20 +1,52 @@
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
+from .serializers import HostsSerializer
 from .models import Hosts
+from django.db.models import Q
 import ansible_runner
-import json
 from pathlib import Path
 from loguru import logger
 
 
-# Create your views here.
-
 class CmdbView(APIView):
-    def get(self, request, pk):
-        return Response(status=status.HTTP_200_OK)
+    """
+    CMDB API
+    """
+    queryset = Hosts.objects.all().order_by('-id')
+    serializer_class = HostsSerializer
+
+    def get_queryset(self):
+        """
+        curl --location --request GET 'http://127.0.0.1:8000/api/v1/cmdb' \
+        --header 'User-Agent: Apifox/1.0.0 (https://apifox.com)' \
+        --header 'Content-Type: application/json' \
+        --header 'Accept: */*' \
+        --header 'Host: 127.0.0.1:8000' \
+        --header 'Connection: keep-alive'
+        """
+        queryset = self.queryset
+        search = self.request.query_params.get("search", None)
+        if search is not None:
+            queryset = queryset.filter(Q(hostname__contains=search))
+        else:
+            queryset = queryset.all().order_by('-id')
+        return queryset
+
+    def get(self, request):
+        ser = HostsSerializer(self.get_queryset(), many=True)
+        return Response({"code": status.HTTP_200_OK, "data": ser.data, "msg": "ok"})
 
     def post(self, request):
+        """
+        curl --location --request POST 'http://127.0.0.1:8000/api/v1/cmdb' \
+        --header 'User-Agent: Apifox/1.0.0 (https://apifox.com)' \
+        --header 'Content-Type: application/json' \
+        --header 'Accept: */*' \
+        --header 'Host: 127.0.0.1:8000' \
+        --header 'Connection: keep-alive' \
+        --data-raw '{"hosts": ["localhost", "192.168.18.227", "127.0.0.1"]}'
+        """
         try:
             hosts = request.data.get('hosts')
             logger.info(f"hosts: {hosts}")
@@ -52,18 +84,19 @@ class CmdbView(APIView):
                         obj, created = Hosts.objects.update_or_create(hostname=str(host).strip(), defaults=setup_dict)
                         logger.info(f"The {obj.hostname} update successfully")
 
-            return Response(data={"msg": True}, status=status.HTTP_200_OK)
+            return Response({"code": status.HTTP_200_OK, "data": None, "msg": "ok"})
         except Exception as e:
-            pass
+            return Response({"code": status.HTTP_500_INTERNAL_SERVER_ERROR, "data": None,
+                             "msg": f"{e.__class__.__name__}: {str(e)}"})
 
-        return Response(data={"msg": False}, status=status.HTTP_201_CREATED)
+        return Response({"code": status.HTTP_201_CREATED, "msg": "ok"})
 
-    def put(self, request, pk):
-        # Handle PUT request to update a resource
-        data = {'message': f'Resource {pk} updated successfully'}
-        return Response(data, status=status.HTTP_200_OK)
+        def put(self, request, pk):
+            # Handle PUT request to update a resource
+            # data = {'message': f'Resource {pk} updated successfully'}
+            return Response(code=status.HTTP_200_OK)
 
-    def delete(self, request, pk):
-        # Handle DELETE request to delete a resource
-        data = {'message': f'Resource {pk} deleted successfully'}
-        return Response(data, status=status.HTTP_204_NO_CONTENT)
+        def delete(self, request, pk):
+            # Handle DELETE request to delete a resource
+            data = {'message': f'Resource {pk} deleted successfully'}
+            return Response(data, status=status.HTTP_204_NO_CONTENT)
