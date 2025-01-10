@@ -24,11 +24,12 @@ SECRET_KEY = 'django-insecure--f4x98o&u+o^%b(uu&^j010e*ej2x#(%hq&+7nyy%8usvzr9dg
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["127.0.0.1", "localhost"]
 
 # Application definition
 
 INSTALLED_APPS = [
+    'grappelli',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',

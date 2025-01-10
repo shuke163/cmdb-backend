@@ -20,7 +20,7 @@ from api.views import CmdbView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('grappelli/', include('grappelli.urls')),
     path('api-auth/', include('rest_framework.urls')),
-
     path('api/v1/cmdb', CmdbView.as_view(), name='api'),
 ]
