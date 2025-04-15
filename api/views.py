@@ -8,6 +8,9 @@ import ansible_runner
 from pathlib import Path
 from loguru import logger
 
+from drf_spectacular.utils import extend_schema, OpenApiParameter
+from drf_spectacular.types import OpenApiTypes
+
 
 class CmdbView(APIView):
     """
@@ -33,10 +36,39 @@ class CmdbView(APIView):
             queryset = queryset.all().order_by('-id')
         return queryset
 
+    @extend_schema(
+        operation_id="TodoLists",  # 设置右上角的名称，需要唯一性
+        summary="待办项列表",  # 接口上的备注
+        # 执行序列化器
+        responses=HostsSerializer(many=True),
+        # 对参数的修改
+        parameters=[
+            # 这是其中一个参数
+            OpenApiParameter(
+                # 参数的名称是done
+                name="done",
+                # 对参数的备注
+                description="是否完成",
+                # 指定参数的类型
+                type=OpenApiTypes.BOOL,
+                # 指定必须给
+                required=True,
+                # 指定枚举项
+                enum=[True, False],
+            )
+        ])
     def get(self, request):
         ser = HostsSerializer(self.get_queryset(), many=True)
         return Response({"code": status.HTTP_200_OK, "data": ser.data, "msg": "ok"})
 
+    @extend_schema(
+        operation_id='Logout',
+        summary='用户登出',
+        request=None,
+        responses={
+            204: None
+        }
+    )
     def post(self, request):
         """
         curl --location --request POST 'http://127.0.0.1:8000/api/v1/cmdb' \

@@ -40,6 +40,7 @@ python manage.py runserver
 
 ### Django admin
 [admin](http://127.0.0.1:8000/admin)
+[api docs](http://localhost:8000/swagger)
 
 ### refs
 
