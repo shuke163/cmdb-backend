@@ -1,5 +1,6 @@
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.decorators import api_view
 from rest_framework import status
 from .serializers import HostsSerializer
 from .models import Hosts
@@ -8,8 +9,22 @@ import ansible_runner
 from pathlib import Path
 from loguru import logger
 
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
+
+from .swagger import Schema_email, Schema_password, Schema_object, Schema_None
+
 from drf_spectacular.utils import extend_schema, OpenApiParameter
 from drf_spectacular.types import OpenApiTypes
+
+request_schema = openapi.Schema(
+    type=openapi.TYPE_OBJECT,
+    properties={
+        'name': openapi.Schema(type=openapi.TYPE_STRING, description='User name'),
+        'age': openapi.Schema(type=openapi.TYPE_INTEGER, description='User age'),
+    },
+    required=['name']
+)
 
 
 class CmdbView(APIView):
@@ -36,39 +51,22 @@ class CmdbView(APIView):
             queryset = queryset.all().order_by('-id')
         return queryset
 
-    @extend_schema(
-        operation_id="TodoLists",  # 设置右上角的名称，需要唯一性
-        summary="待办项列表",  # 接口上的备注
-        # 执行序列化器
-        responses=HostsSerializer(many=True),
-        # 对参数的修改
-        parameters=[
-            # 这是其中一个参数
-            OpenApiParameter(
-                # 参数的名称是done
-                name="done",
-                # 对参数的备注
-                description="是否完成",
-                # 指定参数的类型
-                type=OpenApiTypes.BOOL,
-                # 指定必须给
-                required=True,
-                # 指定枚举项
-                enum=[True, False],
-            )
-        ])
+    # @swagger_auto_schema(
+    #     operation_summary='登录',
+    #     operation_description='成功返回 200'
+    #                           '失败（账户或密码错误）返回 401\n'
+    #                           '注：一个已登录的用户 A 尝试 login 账户 B 失败后，仍具有账户 A 的凭证。',
+    #     manual_parameters=[
+    #         openapi.Parameter('name', openapi.IN_QUERY, description="User's name", type=openapi.TYPE_STRING),
+    #         openapi.Parameter('age', openapi.IN_QUERY, description="User's age", type=openapi.TYPE_INTEGER)
+    #     ],
+    #     responses={200: Schema_None}
+    # )
     def get(self, request):
         ser = HostsSerializer(self.get_queryset(), many=True)
         return Response({"code": status.HTTP_200_OK, "data": ser.data, "msg": "ok"})
 
-    @extend_schema(
-        operation_id='Logout',
-        summary='用户登出',
-        request=None,
-        responses={
-            204: None
-        }
-    )
+    @swagger_auto_schema(request_body=request_schema)
     def post(self, request):
         """
         curl --location --request POST 'http://127.0.0.1:8000/api/v1/cmdb' \
@@ -77,7 +75,7 @@ class CmdbView(APIView):
         --header 'Accept: */*' \
         --header 'Host: 127.0.0.1:8000' \
         --header 'Connection: keep-alive' \
-        --data-raw '{"hosts": ["localhost", "192.168.18.227", "127.0.0.1"]}'
+        --data-raw '{"hosts": ["localhost", "127.0.0.1"]}'
         """
         try:
             hosts = request.data.get('hosts')
@@ -85,12 +83,13 @@ class CmdbView(APIView):
 
             if isinstance(hosts, list) and hosts is not None:
                 for host in hosts:
-                    r = ansible_runner.run(private_data_dir=Path.cwd(), host_pattern=str(host).strip(),
-                                           limit=",".join(hosts), module='setup')
+                    host = str(host).strip()
+                    r = ansible_runner.run(private_data_dir=Path.cwd(), host_pattern=host, limit=",".join(hosts),
+                                           module='setup', quiet=True, json_mode=True)
 
+                    data = r.get_fact_cache(host)
                     if r.status == "successful" and r.rc == 0:
                         setup_dict = {}
-                        data = r.get_fact_cache(host)
                         setup_dict["ansible_all_ipv4_addresses"] = data.get('ansible_default_ipv4').get("address")
                         setup_dict["macaddress"] = data.get('ansible_default_ipv4').get("macaddress")
                         setup_dict["ansible_architecture"] = data.get('ansible_architecture')
@@ -113,22 +112,24 @@ class CmdbView(APIView):
                         setup_dict["ansible_product_name"] = data.get('ansible_product_name')
                         setup_dict["ansible_system"] = data.get('ansible_system')
                         setup_dict["raw_data"] = data
-                        obj, created = Hosts.objects.update_or_create(hostname=str(host).strip(), defaults=setup_dict)
+                        obj, created = Hosts.objects.update_or_create(hostname=host, defaults=setup_dict)
+
+                        logger.info(f"host: {host}, data: {data}")
                         logger.info(f"The {obj.hostname} update successfully")
+                    else:
+                        logger.info(f"The {host} update failed")
 
             return Response({"code": status.HTTP_200_OK, "data": None, "msg": "ok"})
         except Exception as e:
             return Response({"code": status.HTTP_500_INTERNAL_SERVER_ERROR, "data": None,
                              "msg": f"{e.__class__.__name__}: {str(e)}"})
 
-        return Response({"code": status.HTTP_201_CREATED, "msg": "ok"})
+    def put(self, request, pk):
+        # Handle PUT request to update a resource
+        # data = {'message': f'Resource {pk} updated successfully'}
+        return Response(code=status.HTTP_200_OK)
 
-        def put(self, request, pk):
-            # Handle PUT request to update a resource
-            # data = {'message': f'Resource {pk} updated successfully'}
-            return Response(code=status.HTTP_200_OK)
-
-        def delete(self, request, pk):
-            # Handle DELETE request to delete a resource
-            data = {'message': f'Resource {pk} deleted successfully'}
-            return Response(data, status=status.HTTP_204_NO_CONTENT)
+    def delete(self, request, pk):
+        # Handle DELETE request to delete a resource
+        data = {'message': f'Resource {pk} deleted successfully'}
+        return Response(data, status=status.HTTP_204_NO_CONTENT)

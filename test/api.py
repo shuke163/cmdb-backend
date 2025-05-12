@@ -66,7 +66,7 @@ class ResultsCollectorJSONCallback(CallbackBase):
 
 def main():
     init_plugin_loader()
-    host_list = ['localhost', "192.168.18.227"]
+    host_list = ['localhost', "192.168.0.109"]
     # since the API is constructed for CLI it expects certain options to always be set in the context object
     context.CLIARGS = ImmutableDict(
         connection='smart',

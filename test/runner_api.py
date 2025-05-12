@@ -18,14 +18,14 @@ import ansible_runner
 # print(dir(ansible_runner))
 
 # get ansible inventory information
-out, err = ansible_runner.get_inventory(
-    action='list',
-    inventories=['/Users/apple/work/cmdb/inventory/hosts.yml', ],
-    response_format='json',
-    process_isolation=False,
-    # container_image='network-ee'
-)
-logger.info("inventory: {}".format(out))
+# out, err = ansible_runner.get_inventory(
+#     action='list',
+#     inventories=['/Users/apple/work/cmdb/inventory/hosts.yml', ],
+#     response_format='json',
+#     process_isolation=False,
+#     # container_image='network-ee'
+# )
+# logger.info("inventory: {}".format(out))
 # logger.info("err: {}".format(err))
 
 # r = ansible_runner.run(private_data_dir='/Users/apple/work/cmdb', playbook='test.yml')
@@ -40,21 +40,37 @@ logger.info("inventory: {}".format(out))
 #
 # print(r.get_fact_cache("localhost"))
 
-hosts = "localhost, 192.168.18.227"
-logger.info("hosts.yml: {}".format(hosts))
+hosts = "192.168.0.107"
 
-# print(",".join(hosts.yml))
-# r = ansible_runner.run(private_data_dir=Path.cwd(), host_pattern="/Users/apple/work/cmdb/inventory/hosts.yml",
-r = ansible_runner.run(private_data_dir=Path.cwd(), host_pattern=hosts, limit="localhost, 192.168.18.227",
-                       module='setup', quiet=True)
-#
-for each_host_event in r.events:
-    print(each_host_event['event'])
-print("Final status:")
-print(r.stats)
+# r = ansible_runner.run(private_data_dir=Path.cwd(), host_pattern="/Users/apple/work/cmdb/inventory/hosts.yml")
+
+for host in hosts.split(","):
+    print("host={}".format(str(host).strip()))
+    r = ansible_runner.run(private_data_dir=Path.cwd(),
+                           host_pattern=str(host).strip(),
+                           limit=",".join(["localhost", "127.0.0.1", "mac", "192.168.0.107"]),
+                           module='setup', quiet=True, json_mode=True)
+    #
+    for each_host_event in r.events:
+        print(each_host_event['event'])
+
+    print("Final status:")
+    print(r.stats)
+
+    if r.status == "successful" and r.rc == 0:
+        if r.stats.get("ok"):
+            data = json.dumps(r.get_fact_cache(str(host).strip()), indent=4)
+            logger.info(f"{host}: {data}")
+
+# print(dir(r))
+
+# print("stdout: ", r.stdout.readlines())
+# print(r.stderr.readlines())
+# print(r.get_fact_cache("192.168.0.109"))
 
 
-print(r.status, r.rc)
-if r.status == "successful" and r.rc == 0:
-    data = json.dumps(r.get_fact_cache(hosts), indent=4)
-    logger.info(f"{hosts}: {data}")
+# print(dir(r))
+# print(dir(r.config))
+# print(r.config.fact_cache)
+# print(r.config.host_pattern)
+# print(r.config.limit)

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Inventory, Hosts
+from .models import Inventory, Hosts, Group
 
 # Register your models here.
 admin.site.site_header = "CMDB 管理后台"
@@ -17,6 +17,12 @@ class HostsAdmin(admin.ModelAdmin):
     list_per_page = 100
 
 
+class GroupAdmin(admin.ModelAdmin):
+    list_display = ('id', 'group')
+    list_display_links = ("group",)
+    list_per_page = 100
+
+
 class InventoryAdmin(admin.ModelAdmin):
     list_display = (
         "id", "alias", "ansible_host", "ansible_password", "ansible_user", "ansible_ssh_private_key_file", "group",
@@ -27,4 +33,5 @@ class InventoryAdmin(admin.ModelAdmin):
 
 
 admin.site.register(Hosts, HostsAdmin)
+admin.site.register(Group, GroupAdmin)
 admin.site.register(Inventory, InventoryAdmin)

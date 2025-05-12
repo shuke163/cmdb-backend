@@ -170,7 +170,7 @@ REST_FRAMEWORK = {
         "%Y-%m-%d %H:%M:%S",
     'PAGE_SIZE':
         10,
-    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema',
 }
 
 # swagger

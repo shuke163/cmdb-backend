@@ -25,26 +25,26 @@ from drf_yasg import openapi
 from api import views
 
 router = routers.DefaultRouter()
-# router.register(r'api/v1/cmdb', CmdbView)
+router.register(r'api/v1/cmdb', CmdbView)
 
 schema_view = get_schema_view(
     openapi.Info(
         title="CMDB API",
         default_version='v1.0',
         description="CMDB接口文档",
-        terms_of_service="http://127.0.0.1:8000",
+        # terms_of_service="http://127.0.0.1:8000",
         contact=openapi.Contact(email="shu_ke163@163.com"),
         license=openapi.License(name="BSD License"),
     ), public=True, permission_classes=(permissions.AllowAny,))
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    # path('grappelli/', include('grappelli.urls')),
+    path('grappelli/', include('grappelli.urls')),
     path('api-auth/', include('rest_framework.urls', namespace='rest_framework')),
     path('api/v1/cmdb', CmdbView.as_view(), name='api'),
 
     # drf-yasg
     path('^swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
-    path('swagger', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
+    path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
 ]

@@ -39,7 +39,7 @@ class Group(common):
     """
     ansible group table
     """
-    group = models.ForeignKey(Inventory, on_delete=models.CASCADE, related_name="a_group",
+    group = models.ForeignKey("Inventory", on_delete=models.CASCADE, related_name="a_group",
                               verbose_name="ansible_group_name")
 
     class Meta:
